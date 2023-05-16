@@ -1,7 +1,7 @@
 # Invoice Manager
-- Name: **Your Name**
-- Student Number: **Your Student Number**
-- Section Number: **Course Section Number**
+- Name: Huijie Ren
+- Student Number: 041078506
+- Section Number: 302
 
 
 
