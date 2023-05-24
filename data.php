@@ -1,4 +1,8 @@
 <?php 
+  if(!isset($_SESSION)) 
+  { 
+      session_start(); 
+  } 
   $statuses = ['all', 'draft', 'pending', 'paid'];
 
   $invoices = [
@@ -178,3 +182,11 @@
       'email'  => 'darcythompson@enormo.com',
     ]
   ];
+
+  if(isset($_SESSION['invoices'])){
+    $invoices = $_SESSION['invoices'];
+   }
+   else{
+    $_SESSION['invoices'] = $invoices;
+   }
+?>
