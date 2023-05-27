@@ -17,7 +17,7 @@
         <a href="index.php?status=pending"><button class="nav-link" id="nav-pending-tab" data-bs-toggle="tab" data-bs-target="#nav-pending" type="button" role="tab" aria-controls="nav-pending" aria-selected="false">Pending</button></a>
         <a href="index.php?status=paid"><button class="nav-link" id="nav-paid-tab" data-bs-toggle="tab" data-bs-target="#nav-paid" type="button" role="tab" aria-controls="nav-paid" aria-selected="false">Paid</button></a>
         </div>
-    <table class="table table-hover table-borderless">
+    <table class="table table-borderless">
         <thead>
             <tr><th>Number</th><th>Client</th><th>Amount</th><th class="text-center">Status</th></tr>
         </thead>
@@ -27,7 +27,7 @@
                     <td ><strong>#<?php echo $invoice['number'];?></strong></td>
                     <td class="text-primary"><?php echo $invoice['client'];?></td>
                     <td >$ <?php echo $invoice['amount'];?></td>
-                    <td ><div class="<?php echo $invoice['status'];?> text-center"><?php echo $invoice['status'];?></div></td>                    
+                    <td class="td-status"><button type="button" class="btn btn-status <?php echo $invoice['status'];?>"><?php echo $invoice['status'];?></button></td>                    
                 </tr>
             <?php endforeach ?>
         </tbody>
