@@ -1,12 +1,12 @@
 <?php
 require "data.php";
 
- if(!isset($_SESSION)) 
- { 
-     session_start(); 
- } 
+//  if(!isset($_SESSION)) 
+//  { 
+//      session_start(); 
+//  } 
 $errors = isset($_GET) ? $_GET : [];
-$previousData = isset($_SESSION['previousData']) ? $_SESSION['previousData'] : [];
+// $previousData = isset($_SESSION['previousData']) ? $_SESSION['previousData'] : [];
 ?>
 
 <!DOCTYPE html>
