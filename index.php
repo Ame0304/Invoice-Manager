@@ -64,13 +64,13 @@ if (isset($_POST['status'])) {
         exit;
     } else {
         $errorString = http_build_query($errors);
-        $previousData = [           
-        'amount' => $amount,
-        'status' => $status,
-        'client' => $client,
-        'email'  => $email];
+        // $previousData = [           
+        // 'amount' => $amount,
+        // 'status' => $status,
+        // 'client' => $client,
+        // 'email'  => $email];
         
-        $_SESSION['previousData'] = $previousData;
+        // $_SESSION['previousData'] = $previousData;
         header("Location: add.php?" . $errorString);
         exit;
     }
