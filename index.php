@@ -11,19 +11,70 @@ function getInvoiceNumber($length = 5){
     return implode($number);
 }
 
-// add a new invoice
-if(isset($_POST['status'])){
-    array_push($invoices,
-    ['number' => getInvoiceNumber(),
-    'amount' => $_POST['amount'],
-    'status' => $_POST['status'],
-    'client' => $_POST['clientName'],
-    'email'  => $_POST['clientEmail']]
-);
-}
+if (isset($_POST['status'])) {
+    $errors = [];
+    $valid = true; // Add a variable to track overall validity
 
-// update invoices
-$_SESSION['invoices'] = $invoices;
+    // validate invoice amount
+    $amount = $_POST['amount'];
+    if (!filter_var($amount, FILTER_VALIDATE_INT)) {
+        $errors['amount_error'] = "Amount must be an integer";
+        $valid = false;
+    }
+
+    // validate client name
+    $client = $_POST['clientName'];
+    if (!preg_match('/^[a-zA-Z\s]+$/', $client)) {
+        $errors['name_error'] = 'Client name must contain letters and spaces only';
+        $valid = false;
+    } else if (strlen($client) > 255) {
+        $errors['name_error'] = 'Client name cannot be more than 255 characters.';
+        $valid = false;
+    }
+
+    // validate client email
+    $email = $_POST['clientEmail'];
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email_error'] = 'A valid email address must be provided.';
+        $valid = false;
+    }
+
+    // validate invoice status
+    $status = $_POST['status'];
+    if ($status != 'draft' && $status != 'pending' && $status != 'paid') {
+        $errors['status_error'] = 'The status must be either draft, pending, or paid.';
+        $valid = false;
+    }
+
+    if ($valid) { 
+        unset($_SESSION['previousData']);
+        // add a new invoice
+        array_push($invoices, [
+            'number' => getInvoiceNumber(),
+            'amount' => $amount,
+            'status' => $status,
+            'client' => $client,
+            'email'  => $email
+        ]);
+
+        // update invoices
+        $_SESSION['invoices'] = $invoices;
+        
+        header("Location: index.php"); 
+        exit;
+    } else {
+        $errorString = http_build_query($errors);
+        $previousData = [           
+        'amount' => $amount,
+        'status' => $status,
+        'client' => $client,
+        'email'  => $email];
+        
+        $_SESSION['previousData'] = $previousData;
+        header("Location: add.php?" . $errorString);
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +89,7 @@ $_SESSION['invoices'] = $invoices;
 <style>
     .btn-status{
         background-color: transparent;
-        border-radius: 10px;
+        border-radius: 5px;
         width: 70%;
     }
 

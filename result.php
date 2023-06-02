@@ -28,7 +28,15 @@
                     <td class="text-primary"><?php echo $invoice['client'];?></td>
                     <td >$ <?php echo $invoice['amount'];?></td>
                     <td class="td-status"><button type="button" class="btn btn-status <?php echo $invoice['status'];?>"><?php echo $invoice['status'];?></button></td>                    
+                    <td><a href="update.php?number=<?php echo $invoice['number'] ?>" class="btn btn-outline-primary">Edit</a></td>
+                    <td>
+                    <form method="post" action="delete.php">
+                    <input type="hidden" name="invoice_number" value="<?php echo $invoice['number']; ?>" />
+                    <button class="btn btn-outline-danger">Delete</button>
+                    </form>
+                    </td>
                 </tr>
+
             <?php endforeach ?>
         </tbody>
 </table>
