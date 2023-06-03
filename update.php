@@ -73,9 +73,13 @@
     }
     .form{
         justify-self: center;
+        display: grid;
+        grid-gap: 1rem;
         align-content: center;
         width: 100%;
         max-width: 600px;
+        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+        padding: 20px;
     }
     .button{
         justify-self: center;
@@ -84,56 +88,59 @@
 </head>
 <body>
     <div class="container">
-    <h1 class="text-center">Invoice Manager - Edit</h1>
-    <form method="post" class="form mt-3">
-    <input type="hidden" name="invoice_number" value="<?php echo $invoice['number'] ?>" />
-    <input type="hidden" name="invoice_amount" value="<?php echo $invoice['amount'] ?>" />
-        <div class="mb-3">
-            <label for="client_name" class="form-label fw-bold text-primary">Client Name</label>
-            <input 
-                type="text" 
-                class="form-control form-control-lg" 
-                name="client_name" 
-                placeholder="Client Name" 
-                required 
-                value="<?php echo ($invoice['client']); ?>">
-                <?php if(isset($nameError)):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $nameError;?></div>
-                <?php endif ?>
-        </div>
-        <div class="mb-3">
-            <label for="client_email" class="form-label fw-bold text-primary">Client Email</label>
-            <input 
-                type="text" 
-                class="form-control form-control-lg" 
-                name="client_email" 
-                placeholder="Client Email" 
-                required 
-                value="<?php echo ($invoice['email']); ?>">
-                <?php if(isset($emailError)):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $emailError;?></div>
-                <?php endif ?>
-        </div>
-        <div class="mb-3">
-            <label for="invoice_status" class="form-label fw-bold text-primary">Invoice Status</label>
-            <select class="form-select form-select-lg" name="invoice_status" required>
-                <option value="">Select a status</option>
-                <?php for($i = 1;$i<count($statuses);$i++) : ?>
-                <option value="<?php echo $statuses[$i]; ?>"
-                <?php if($statuses[$i] === $invoice['status']): ?>selected<?php endif; ?>
-                >
-                <?php echo $statuses[$i]; ?>
-                </option>
-                <?php endfor; ?>
-                </select>
-                <?php if(isset($statusError)):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $statusError;?></div>
-                <?php endif ?>
-      </div>
-      <div class="container text-center">
-      <button type="submit" class="button btn btn-outline-primary w-75">Update Movie</button>
-      </div>
-    </form>
+    <h1 >Invoice Manager</h1>
+    <p>Update this invoice.</p>
+    <div class="form mt-5">
+        <form method="post">
+            <input type="hidden" name="invoice_number" value="<?php echo $invoice['number'] ?>" />
+            <input type="hidden" name="invoice_amount" value="<?php echo $invoice['amount'] ?>" />
+            <div class="mb-3">
+                <label for="client_name" class="form-label fw-bold text-primary">Client Name</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="client_name" 
+                    placeholder="Client Name" 
+                    required 
+                    value="<?php echo ($invoice['client']); ?>">
+                    <?php if(isset($nameError)):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $nameError;?></div>
+                    <?php endif ?>
+            </div>
+            <div class="mb-3">
+                <label for="client_email" class="form-label fw-bold text-primary">Client Email</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="client_email" 
+                    placeholder="Client Email" 
+                    required 
+                    value="<?php echo ($invoice['email']); ?>">
+                    <?php if(isset($emailError)):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $emailError;?></div>
+                    <?php endif ?>
+            </div>
+            <div class="mb-3">
+                <label for="invoice_status" class="form-label fw-bold text-primary">Invoice Status</label>
+                <select class="form-select" name="invoice_status" required>
+                    <option value="">Select a status</option>
+                    <?php for($i = 1;$i<count($statuses);$i++) : ?>
+                    <option value="<?php echo $statuses[$i]; ?>"
+                    <?php if($statuses[$i] === $invoice['status']): ?>selected<?php endif; ?>
+                    >
+                    <?php echo $statuses[$i]; ?>
+                    </option>
+                    <?php endfor; ?>
+                    </select>
+                    <?php if(isset($statusError)):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $statusError;?></div>
+                    <?php endif ?>
+            </div>
+            <div class="container text-center">
+            <button type="submit" class="button btn btn-outline-primary">Update</button>
+            </div>
+        </form>
+    </div>
     </div>
 </body>
 
