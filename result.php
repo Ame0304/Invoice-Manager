@@ -1,9 +1,11 @@
 <?php 
     require "data.php"; 
+    require "functions.php";
+
     if(isset($_GET['status'])){
-        $invoices = array_filter($invoices,function($invoice){
-            return  $invoice['status']===$_GET['status'];
-        });
+        $invoices = getInvoices($_GET['status']);
+    }else{
+        $invoices = getAllInvoices();
     }
 
 ?>
@@ -31,7 +33,7 @@
                     <td><a href="update.php?number=<?php echo $invoice['number'] ?>" class="btn btn-outline-primary">Edit</a></td>
                     <td>
                     <form method="post" action="delete.php">
-                    <input type="hidden" name="invoice_number" value="<?php echo $invoice['number']; ?>" />
+                    <input type="hidden" name="number" value="<?php echo $invoice['number']; ?>" />
                     <button class="btn btn-outline-danger">Delete</button>
                     </form>
                     </td>

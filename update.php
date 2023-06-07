@@ -1,59 +1,19 @@
 <?php 
     require "data.php"; 
+    require "functions.php";
+
     if(isset($_GET['number'])){
-        $invoice = current(array_filter($invoices,function($invoice){
-            return  $invoice['number']==$_GET['number'];
-        }));
+        $invoice = getInvoice($_GET['number']);
         if (!$invoice) {
-            // go back to index.php
             header("Location: index.php");}
     }
     
     if($_SERVER['REQUEST_METHOD']==='POST'){
-        $valid = true;
+        $invoice = sanitize($_POST);
+        $errors = validate($invoice);
 
-        // validate client name
-        $client = $_POST['client_name'];
-        if(!preg_match('/^[a-zA-Z\s]+$/',$client)){
-            $nameError = 'Client name must contain letters and spaces only';
-            $valid = false;
-        }
-        else if(strlen($client)>255){
-            $nameError = 'Client name cannot be more than 255 characters.';
-            $valid = false;
-        }
-        
-        // validate client email
-        $email = $_POST['client_email'];
-        if(!filter_var($email,FILTER_VALIDATE_EMAIL)){
-            $emailError = 'A valid email address must be provided.';
-            $valid = false;
-        }
-        
-        // validate invoice status
-        $status = $_POST['invoice_status'];
-        if($status != 'draft' && $status != 'pending' && $status != 'paid'){
-            $statusError = 'The status must be either draft, pending or paid.';
-            $valid = false;
-        }
-
-        if($valid){
-        $newInvoice = [
-            'number' => $_POST['invoice_number'],
-            'amount' => $_POST['invoice_amount'],
-            'status' => $status,
-            'client' => $client,
-            'email'  => $email,
-        ];
-
-        $invoices = array_map(function($invoice) use ($newInvoice){
-            if($invoice['number'] == $newInvoice['number']){
-              return $newInvoice;
-            }
-            return $invoice;
-          }, $invoices);
-
-        $_SESSION['invoices'] = $invoices;
+        if(count($errors)===0){
+        updateInvoice($invoice);
         header("Location: index.php");}
     }
 ?>
@@ -92,39 +52,39 @@
     <p>Update this invoice.</p>
     <div class="form mt-5">
         <form method="post">
-            <input type="hidden" name="invoice_number" value="<?php echo $invoice['number'] ?>" />
-            <input type="hidden" name="invoice_amount" value="<?php echo $invoice['amount'] ?>" />
+            <input type="hidden" name="number" value="<?php echo $invoice['number'] ?>" />
+            <input type="hidden" name="amount" value="<?php echo $invoice['amount'] ?>" />
             <div class="mb-3">
-                <label for="client_name" class="form-label fw-bold text-primary">Client Name</label>
+                <label for="client" class="form-label fw-bold text-primary">Client Name</label>
                 <input 
                     type="text" 
                     class="form-control" 
-                    name="client_name" 
+                    name="client" 
                     placeholder="Client Name" 
                     required 
                     value="<?php echo ($invoice['client']); ?>">
-                    <?php if(isset($nameError)):?>
-                    <div class="alert alert-primary mt-3" role="alert"><?php echo $nameError;?></div>
+                    <?php if(isset($errors['client'])):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['client'];?></div>
                     <?php endif ?>
             </div>
             <div class="mb-3">
-                <label for="client_email" class="form-label fw-bold text-primary">Client Email</label>
+                <label for="email" class="form-label fw-bold text-primary">Client Email</label>
                 <input 
                     type="text" 
                     class="form-control" 
-                    name="client_email" 
+                    name="email" 
                     placeholder="Client Email" 
                     required 
                     value="<?php echo ($invoice['email']); ?>">
-                    <?php if(isset($emailError)):?>
-                    <div class="alert alert-primary mt-3" role="alert"><?php echo $emailError;?></div>
+                    <?php if(isset($errors['email'])):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email'];?></div>
                     <?php endif ?>
             </div>
             <div class="mb-3">
-                <label for="invoice_status" class="form-label fw-bold text-primary">Invoice Status</label>
-                <select class="form-select" name="invoice_status" required>
+                <label for="status" class="form-label fw-bold text-primary">Invoice Status</label>
+                <select class="form-select" name="status" required>
                     <option value="">Select a status</option>
-                    <?php for($i = 1;$i<count($statuses);$i++) : ?>
+                    <?php for($i = 0;$i<count($statuses);$i++) : ?>
                     <option value="<?php echo $statuses[$i]; ?>"
                     <?php if($statuses[$i] === $invoice['status']): ?>selected<?php endif; ?>
                     >
@@ -132,8 +92,8 @@
                     </option>
                     <?php endfor; ?>
                     </select>
-                    <?php if(isset($statusError)):?>
-                    <div class="alert alert-primary mt-3" role="alert"><?php echo $statusError;?></div>
+                    <?php if(isset($errors['status'])):?>
+                    <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['status'];?></div>
                     <?php endif ?>
             </div>
             <div class="container text-center">

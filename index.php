@@ -1,16 +1,6 @@
 <?php 
 require "data.php";
 
-if (isset($_SESSION['newInvoice'])) { 
-    // add a new invoice
-    array_push($invoices, $_SESSION['newInvoice']);
-
-    // update invoices
-    $_SESSION['invoices'] = $invoices;
-
-    unset($_SESSION['newInvoice']);
-} 
-
 ?>
 
 <!DOCTYPE html>

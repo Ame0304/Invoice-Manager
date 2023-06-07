@@ -1,67 +1,16 @@
 <?php
 require "data.php";
+require "functions.php";
+
+$invoice = [];
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
-    $errors = [];
-    $previousData = [];
-    $valid = true;
+    $invoice = sanitize($_POST);
+    $errors = validate($invoice);
 
-    // validate invoice amount
-    $amount = $_POST['amount'];
-    if (!filter_var($amount, FILTER_VALIDATE_INT)) {
-        $errors['amount_error'] = "Amount must be an integer";
-        $valid = false;
-    }
-
-    // validate client name
-    $client = $_POST['clientName'];
-    if (!preg_match('/^[a-zA-Z\s]+$/', $client)) {
-        $errors['name_error'] = 'Client name must contain letters and spaces only';      
-        $valid = false;
-    } else if (strlen($client) > 255) {
-        $errors['name_error'] = 'Client name cannot be more than 255 characters.';      
-        $valid = false;
-    }
-
-    // validate client email
-    $email = $_POST['clientEmail'];
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email_error'] = 'A valid email address must be provided.';
-        $valid = false;
-    }
-
-    // validate invoice status
-    $status = $_POST['status'];
-    if ($status != 'draft' && $status != 'pending' && $status != 'paid') {
-        $errors['status_error'] = 'The status must be either draft, pending, or paid.';
-        $valid = false;
-    }
-
-    function getInvoiceNumber($length = 5){
-        $letters = range('A','Z');
-        $number = [];
-    
-        for($i=0; $i< $length; $i++){
-            array_push($number,$letters[rand(0,count($letters) -1)]);
-        }
-        return implode($number);
-    }
-
-    if($valid){
-        $_SESSION['newInvoice']=[
-            'number' => getInvoiceNumber(),
-            'amount' => $amount,
-            'status' => $status,
-            'client' => $client,
-            'email'  => $email
-        ];
-
+    if(count($errors) === 0){
+        addInvoice($invoice);
         header("Location: index.php"); 
-    }else{
-        $previousData['amount'] = $amount;
-        $previousData['status'] = $status;
-        $previousData['client'] = $client;
-        $previousData['email'] = $email;
     }
 
 }
@@ -103,32 +52,32 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <form method="post">
             <div class="mb-3">
                 <label for="clientName" class="form-label fw-bold text-primary">Client Name</label>
-                <input type="text" class="form-control" name="clientName" placeholder="Your Name" value="<?php echo isset($previousData['client'])? $previousData['client'] :"" ?>" required>
-                <?php if(isset($errors['name_error'])):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['name_error'];?></div>
+                <input type="text" class="form-control" name="client" placeholder="Your Name" value="<?php echo $invoice['client'] ?? ''; ?>" required>
+                <?php if(isset($errors['client'])):?>
+                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['client'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="clientEmail" class="form-label fw-bold text-primary">Client Email</label>
-                <input type="email" class="form-control" name="clientEmail" placeholder="name@example.com" value="<?php echo isset($previousData['email'])? $previousData['email'] :"" ?>" required>
-                <?php if(isset($errors['email_error'])):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email_error'];?></div>
+                <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $invoice['email'] ?? ''; ?>" required>
+                <?php if(isset($errors['email'])):?>
+                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="amount" class="form-label fw-bold text-primary">Invoice Amount</label>
-                <input type="number" class="form-control" name="amount" placeholder="Amount" value="<?php echo isset($previousData['amount'])? $previousData['amount'] :"" ?>" required >
-                <?php if(isset($errors['amount_error'])):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['amount_error'];?></div>
+                <input type="number" class="form-control" name="amount" placeholder="Amount" value="<?php echo $invoice['amount'] ?? ''; ?>" required >
+                <?php if(isset($errors['amount'])):?>
+                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['amount'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="status" class="form-label fw-bold text-primary">Invoice Status</label>
                 <select class="form-select" name="status" required>
                     <option value="">Select a Status</option>
-                    <?php for($i = 1;$i < count($statuses); $i++) : ?>
+                    <?php for($i = 0;$i < count($statuses); $i++) : ?>
                     <option value="<?php echo $statuses[$i]; ?>" 
-                    <?php if($statuses[$i] === (isset($previousData['status']) ? $previousData['status'] : "")): ?>
+                    <?php if(isset($invoice['status']) && $statuses[$i] === $invoice['status']): ?>
                         selected
                     <?php endif; ?>
                     >
@@ -136,8 +85,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                     </option>
                     <?php endfor; ?>
                 </select>
-                <?php if(isset($errors['status_error'])):?>
-                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['status_error'];?></div>
+                <?php if(isset($errors['status'])):?>
+                <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['status'];?></div>
                 <?php endif ?>
             </div>
             <div class="text-center">
