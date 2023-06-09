@@ -49,7 +49,11 @@
 <body>
     <div class="container">
     <h1 >Invoice Manager</h1>
-    <p>Update this invoice.</p>
+    <div class="d-flex flex-row justify-content-between mb-3">
+        <p>Update this invoice.</p>
+        <a href="index.php">< Back</a>
+    </div>
+
     <div class="form mt-5">
         <form method="post">
             <input type="hidden" name="number" value="<?php echo $invoice['number'] ?>" />
