@@ -9,7 +9,6 @@ function sanitize($data) {
 function validate($invoice){
     $errors = [];
     $fields = ['client','amount','email','status'];
-    global $statuses;
 
     foreach($fields as $field){
         switch($field){
