@@ -52,28 +52,28 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <form method="post">
             <div class="mb-3">
                 <label for="clientName" class="form-label fw-bold text-primary">Client Name</label>
-                <input type="text" class="form-control" name="client" placeholder="Your Name" value="<?php echo $invoice['client'] ?? ''; ?>" required>
+                <input type="text" class="form-control" name="client" placeholder="Your Name" value="<?php echo $invoice['client'] ?? ''; ?>" >
                 <?php if(isset($errors['client'])):?>
                 <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['client'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="clientEmail" class="form-label fw-bold text-primary">Client Email</label>
-                <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $invoice['email'] ?? ''; ?>" required>
+                <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $invoice['email'] ?? ''; ?>" >
                 <?php if(isset($errors['email'])):?>
                 <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="amount" class="form-label fw-bold text-primary">Invoice Amount</label>
-                <input type="number" class="form-control" name="amount" placeholder="Amount" value="<?php echo $invoice['amount'] ?? ''; ?>" required >
+                <input type="number" class="form-control" name="amount" placeholder="Amount" value="<?php echo $invoice['amount'] ?? ''; ?>"  >
                 <?php if(isset($errors['amount'])):?>
                 <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['amount'];?></div>
                 <?php endif ?>
             </div>
             <div class="mb-3">
                 <label for="status" class="form-label fw-bold text-primary">Invoice Status</label>
-                <select class="form-select" name="status" required>
+                <select class="form-select" name="status" >
                     <option value="">Select a Status</option>
                     <?php for($i = 0;$i < count($statuses); $i++) : ?>
                     <option value="<?php echo $statuses[$i]; ?>" 

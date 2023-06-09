@@ -64,8 +64,7 @@
                     type="text" 
                     class="form-control" 
                     name="client" 
-                    placeholder="Client Name" 
-                    required 
+                    placeholder="Client Name"  
                     value="<?php echo ($invoice['client']); ?>">
                     <?php if(isset($errors['client'])):?>
                     <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['client'];?></div>
@@ -77,8 +76,7 @@
                     type="text" 
                     class="form-control" 
                     name="email" 
-                    placeholder="Client Email" 
-                    required 
+                    placeholder="Client Email"  
                     value="<?php echo ($invoice['email']); ?>">
                     <?php if(isset($errors['email'])):?>
                     <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email'];?></div>
@@ -86,7 +84,7 @@
             </div>
             <div class="mb-3">
                 <label for="status" class="form-label fw-bold text-primary">Invoice Status</label>
-                <select class="form-select" name="status" required>
+                <select class="form-select" name="status">
                     <option value="">Select a status</option>
                     <?php for($i = 0;$i<count($statuses);$i++) : ?>
                     <option value="<?php echo $statuses[$i]; ?>"
