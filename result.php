@@ -37,6 +37,11 @@
                     <button class="btn btn-outline-danger">Delete</button>
                     </form>
                     </td>
+                    <?php if(file_exists("documents/" . $invoice['number'] . ".pdf")): ?>
+                    <td>
+                        <a class="btn btn-outline-info" href="documents/<?php echo $invoice['number']; ?>.pdf" target="_blank">View</a>
+                    </td>
+                    <?php endif;?>
                 </tr>
 
             <?php endforeach ?>

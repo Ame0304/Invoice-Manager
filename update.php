@@ -55,7 +55,7 @@
     </div>
 
     <div class="form mt-5">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <input type="hidden" name="number" value="<?php echo $invoice['number'] ?>" />
             <input type="hidden" name="amount" value="<?php echo $invoice['amount'] ?>" />
             <div class="mb-3">
@@ -98,6 +98,9 @@
                     <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['status'];?></div>
                     <?php endif ?>
             </div>
+            <div class="mb-3">
+                <input type="file" class="form-control" name="pdfInvoice" accept=".pdf">
+            </div> 
             <div class="container text-center">
             <button type="submit" class="button btn btn-outline-primary">Update</button>
             </div>

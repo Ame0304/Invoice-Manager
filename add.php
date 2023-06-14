@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 
     if(count($errors) === 0){
         addInvoice($invoice);
-        header("Location: index.php"); 
+        header("Location: index.php");
     }
 
 }
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             <a href="index.php">< Back</a>
         </div>
         <div class="form">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="clientName" class="form-label fw-bold text-primary">Client Name</label>
                 <input type="text" class="form-control" name="client" placeholder="Your Name" value="<?php echo $invoice['client'] ?? ''; ?>" >
@@ -89,6 +89,9 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['status'];?></div>
                 <?php endif ?>
             </div>
+            <div class="mb-3">
+                <input type="file" class="form-control" name="pdfInvoice" accept=".pdf">
+            </div> 
             <div class="text-center">
             <button type="submit" class="btn btn-outline-primary">Submit</button>
             </div>

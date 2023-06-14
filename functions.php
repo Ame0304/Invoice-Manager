@@ -53,6 +53,25 @@ function validate($invoice){
     return $errors;
 }
 
+function savePdf($number){
+    $pdfInvoice = $_FILES['pdfInvoice'];
+
+    if($pdfInvoice['error'] === UPLOAD_ERR_OK){
+      // get the file extension
+      $ext = pathinfo($pdfInvoice['name'],PATHINFO_EXTENSION);
+      $filename = $number . '.' . $ext;
+      
+      if(!file_exists('documents/')){
+        mkdir('documents/');
+      }
+
+      $dest = 'documents/' . $filename;
+
+      return move_uploaded_file($pdfInvoice['tmp_name'],$dest);
+    }
+    return false;
+}
+
 function getInvoiceNumber($length = 5){
     $letters = range('A','Z');
     $number = [];
@@ -106,11 +125,14 @@ function addInvoice($invoice){
     $sql = "INSERT INTO invoices (number, amount, status_id, client, email)
             VALUES(:number, :amount, :status_id, :client, :email)";
     $result = $db->prepare($sql);
-    $result->execute([':number' => getInvoiceNumber(),
+    $number = getInvoiceNumber();
+    $result->execute([':number' => $number,
                       ':amount' => $invoice['amount'],
                       ':status_id' => $status_id,
                       ':client' => $invoice['client'],
                       ':email' => $invoice['email']]);
+
+    savePdf($number);
 }
 
 function updateInvoice($invoice){
@@ -124,6 +146,8 @@ function updateInvoice($invoice){
                     ':client' => $invoice['client'],
                     ':email' => $invoice['email'],
                     ':status_id' => $status_id]);
+
+    savePdf($invoice['number']);
 }
 
 function deleteInvoice($number){
