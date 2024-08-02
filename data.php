@@ -7,7 +7,7 @@ try {
   $db = new PDO($dsn, $username, $password);
 } catch (PDOException $e) {
   $error = $e->getMessage();
-  echo $error;
+  echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
   exit();
 }
 

@@ -1,50 +1,46 @@
-<?php 
+<?php
 
-function sanitize($data) {
+function sanitize($data)
+{
     return array_map(function ($value) {
-      return htmlspecialchars(stripslashes(trim($value)));
+        return htmlspecialchars(stripslashes(trim($value)));
     }, $data);
 }
 
-function validate($invoice){
+function validate($invoice)
+{
     $errors = [];
-    $fields = ['client','amount','email','status'];
+    $fields = ['client', 'amount', 'email', 'status'];
 
-    foreach($fields as $field){
-        switch($field){
+    foreach ($fields as $field) {
+        switch ($field) {
             case 'client':
-                if(empty($invoice[$field])){
+                if (empty($invoice[$field])) {
                     $errors[$field] = 'Client name is required.';
-                }
-                else if (!preg_match('/^[a-zA-Z\s]+$/', $invoice[$field])) {
-                    $errors[$field] = 'Client name must contain letters and spaces only.';      
-                    
+                } else if (!preg_match('/^[a-zA-Z\s]+$/', $invoice[$field])) {
+                    $errors[$field] = 'Client name must contain letters and spaces only.';
                 } else if (strlen($invoice[$field]) > 255) {
-                    $errors[$field] = 'Client name cannot be more than 255 characters.';      
-                    
+                    $errors[$field] = 'Client name cannot be more than 255 characters.';
                 }
                 break;
             case 'amount':
-                if(empty($invoice[$field])){
+                if (empty($invoice[$field])) {
                     $errors[$field] = "Amount is required.";
-                }
-                else if (!filter_var($invoice[$field], FILTER_VALIDATE_INT)) {
+                } else if (!filter_var($invoice[$field], FILTER_VALIDATE_INT)) {
                     $errors[$field] = "Amount must be an integer.";
                 }
                 break;
             case 'email':
-                if(empty($invoice[$field])){
+                if (empty($invoice[$field])) {
                     $errors[$field] = "Email is required.";
-                }
-                else if (!filter_var($invoice[$field], FILTER_VALIDATE_EMAIL)) {
+                } else if (!filter_var($invoice[$field], FILTER_VALIDATE_EMAIL)) {
                     $errors[$field] = 'A valid email address must be provided.';
                 }
                 break;
             case 'status':
-                if(empty($invoice[$field])){
+                if (empty($invoice[$field])) {
                     $errors[$field] = 'Status is required.';
-                }
-                else if ($invoice[$field] != 'draft' && $invoice[$field] != 'pending' && $invoice[$field] != 'paid') {
+                } else if ($invoice[$field] != 'draft' && $invoice[$field] != 'pending' && $invoice[$field] != 'paid') {
                     $errors[$field] = 'The status must be either draft, pending, or paid.';
                 }
         }
@@ -53,36 +49,39 @@ function validate($invoice){
     return $errors;
 }
 
-function savePdf($number){
+function savePdf($number)
+{
     $pdfInvoice = $_FILES['pdfInvoice'];
 
-    if($pdfInvoice['error'] === UPLOAD_ERR_OK){
-      // get the file extension
-      $ext = pathinfo($pdfInvoice['name'],PATHINFO_EXTENSION);
-      $filename = $number . '.' . $ext;
-      
-      if(!file_exists('documents/')){
-        mkdir('documents/');
-      }
+    if ($pdfInvoice['error'] === UPLOAD_ERR_OK) {
+        // get the file extension
+        $ext = pathinfo($pdfInvoice['name'], PATHINFO_EXTENSION);
+        $filename = $number . '.' . $ext;
 
-      $dest = 'documents/' . $filename;
+        if (!file_exists('documents/')) {
+            mkdir('documents/');
+        }
 
-      return move_uploaded_file($pdfInvoice['tmp_name'],$dest);
+        $dest = 'documents/' . $filename;
+
+        return move_uploaded_file($pdfInvoice['tmp_name'], $dest);
     }
     return false;
 }
 
-function getInvoiceNumber($length = 5){
-    $letters = range('A','Z');
+function getInvoiceNumber($length = 5)
+{
+    $letters = range('A', 'Z');
     $number = [];
 
-    for($i=0; $i< $length; $i++){
-        array_push($number,$letters[rand(0,count($letters) -1)]);
+    for ($i = 0; $i < $length; $i++) {
+        array_push($number, $letters[rand(0, count($letters) - 1)]);
     }
     return implode($number);
 }
 
-function getAllInvoices(){
+function getAllInvoices()
+{
     global $db;
     $sql = "SELECT number,client,email,amount,status FROM invoices
     JOIN statuses ON invoices.status_id = statuses.id";
@@ -92,7 +91,8 @@ function getAllInvoices(){
     return $invoices;
 }
 
-function getInvoices($status){
+function getInvoices($status)
+{
     global $db;
     $sql = "SELECT number,client,email,amount,status FROM invoices
             JOIN statuses ON invoices.status_id = statuses.id
@@ -102,10 +102,10 @@ function getInvoices($status){
     $invoices = $result->fetchAll();
 
     return $invoices;
-
 }
 
-function getInvoice($number){
+function getInvoice($number)
+{
     global $db;
     $sql = "SELECT number,client,email,amount,status FROM invoices
             JOIN statuses ON invoices.status_id = statuses.id
@@ -117,45 +117,50 @@ function getInvoice($number){
     return $invoice;
 }
 
-function addInvoice($invoice){
+function addInvoice($invoice)
+{
     global $db, $statuses;
 
-    $status_id = array_search($invoice['status'],$statuses) +1 ;
+    $status_id = array_search($invoice['status'], $statuses) + 1;
 
     $sql = "INSERT INTO invoices (number, amount, status_id, client, email)
             VALUES(:number, :amount, :status_id, :client, :email)";
     $result = $db->prepare($sql);
     $number = getInvoiceNumber();
-    $result->execute([':number' => $number,
-                      ':amount' => $invoice['amount'],
-                      ':status_id' => $status_id,
-                      ':client' => $invoice['client'],
-                      ':email' => $invoice['email']]);
+    $result->execute([
+        ':number' => $number,
+        ':amount' => $invoice['amount'],
+        ':status_id' => $status_id,
+        ':client' => $invoice['client'],
+        ':email' => $invoice['email']
+    ]);
 
     savePdf($number);
 }
 
-function updateInvoice($invoice){
+function updateInvoice($invoice)
+{
     global $db, $statuses;
-    $status_id = array_search($invoice['status'],$statuses) +1 ;
+    $status_id = array_search($invoice['status'], $statuses) + 1;
     $sql = "UPDATE invoices
             SET client = :client, email = :email, status_id = :status_id
             WHERE number = :number";
     $result = $db->prepare($sql);
-    $result->execute([':number' => $invoice['number'],
-                    ':client' => $invoice['client'],
-                    ':email' => $invoice['email'],
-                    ':status_id' => $status_id]);
+    $result->execute([
+        ':number' => $invoice['number'],
+        ':client' => $invoice['client'],
+        ':email' => $invoice['email'],
+        ':status_id' => $status_id
+    ]);
 
     savePdf($invoice['number']);
 }
 
-function deleteInvoice($number){
+function deleteInvoice($number)
+{
     global $db;
     $sql = "DELETE FROM invoices
             WHERE number = :number";
     $result = $db->prepare($sql);
     $result->execute([':number' => $number]);
 }
-
-?>
