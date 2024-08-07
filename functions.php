@@ -10,31 +10,15 @@ function sanitize($data)
 function validate($invoice)
 {
     $errors = [];
-    $fields = ['client', 'amount', 'email', 'status'];
+    $fields = ['amount', 'status'];
 
     foreach ($fields as $field) {
         switch ($field) {
-            case 'client':
-                if (empty($invoice[$field])) {
-                    $errors[$field] = 'Client name is required.';
-                } else if (!preg_match('/^[a-zA-Z\s]+$/', $invoice[$field])) {
-                    $errors[$field] = 'Client name must contain letters and spaces only.';
-                } else if (strlen($invoice[$field]) > 255) {
-                    $errors[$field] = 'Client name cannot be more than 255 characters.';
-                }
-                break;
             case 'amount':
                 if (empty($invoice[$field])) {
                     $errors[$field] = "Amount is required.";
                 } else if (!filter_var($invoice[$field], FILTER_VALIDATE_INT)) {
                     $errors[$field] = "Amount must be an integer.";
-                }
-                break;
-            case 'email':
-                if (empty($invoice[$field])) {
-                    $errors[$field] = "Email is required.";
-                } else if (!filter_var($invoice[$field], FILTER_VALIDATE_EMAIL)) {
-                    $errors[$field] = 'A valid email address must be provided.';
                 }
                 break;
             case 'status':
@@ -43,6 +27,7 @@ function validate($invoice)
                 } else if ($invoice[$field] != 'draft' && $invoice[$field] != 'pending' && $invoice[$field] != 'paid') {
                     $errors[$field] = 'The status must be either draft, pending, or paid.';
                 }
+                break;
         }
     }
 
@@ -83,8 +68,10 @@ function getInvoiceNumber($length = 5)
 function getAllInvoices()
 {
     global $db;
-    $sql = "SELECT number,client,email,amount,status FROM invoices
-    JOIN statuses ON invoices.status_id = statuses.id";
+    $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
+            FROM invoices
+            JOIN users ON invoices.user_id = users.id
+            JOIN statuses ON invoices.status_id = statuses.id";
     $result = $db->query($sql);
     $invoices = $result->fetchAll();
 
@@ -94,9 +81,11 @@ function getAllInvoices()
 function getInvoices($status)
 {
     global $db;
-    $sql = "SELECT number,client,email,amount,status FROM invoices
+    $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
+            FROM invoices
+            JOIN users ON invoices.user_id = users.id
             JOIN statuses ON invoices.status_id = statuses.id
-            WHERE status = :status";
+            WHERE statuses.status = :status";
     $result = $db->prepare($sql);
     $result->execute([':status' => $status]);
     $invoices = $result->fetchAll();
@@ -107,9 +96,11 @@ function getInvoices($status)
 function getInvoice($number)
 {
     global $db;
-    $sql = "SELECT number,client,email,amount,status FROM invoices
+    $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
+            FROM invoices
+            JOIN users ON invoices.user_id = users.id
             JOIN statuses ON invoices.status_id = statuses.id
-            WHERE number = :number";
+            WHERE invoices.number = :number";
     $result = $db->prepare($sql);
     $result->execute([':number' => $number]);
     $invoice = $result->fetch();
@@ -123,16 +114,15 @@ function addInvoice($invoice)
 
     $status_id = array_search($invoice['status'], $statuses) + 1;
 
-    $sql = "INSERT INTO invoices (number, amount, status_id, client, email)
-            VALUES(:number, :amount, :status_id, :client, :email)";
+    $sql = "INSERT INTO invoices (number, amount, status_id, user_id)
+            VALUES(:number, :amount, :status_id, :user_id)";
     $result = $db->prepare($sql);
     $number = getInvoiceNumber();
     $result->execute([
         ':number' => $number,
         ':amount' => $invoice['amount'],
         ':status_id' => $status_id,
-        ':client' => $invoice['client'],
-        ':email' => $invoice['email']
+        ':user_id' => $invoice['user_id'] // Use user_id from the invoice array
     ]);
 
     savePdf($number);
@@ -143,13 +133,12 @@ function updateInvoice($invoice)
     global $db, $statuses;
     $status_id = array_search($invoice['status'], $statuses) + 1;
     $sql = "UPDATE invoices
-            SET client = :client, email = :email, status_id = :status_id
+            SET amount = :amount, status_id = :status_id
             WHERE number = :number";
     $result = $db->prepare($sql);
     $result->execute([
         ':number' => $invoice['number'],
-        ':client' => $invoice['client'],
-        ':email' => $invoice['email'],
+        ':amount' => $invoice['amount'],
         ':status_id' => $status_id
     ]);
 

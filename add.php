@@ -2,6 +2,9 @@
 require "data.php";
 require "functions.php";
 
+// Assuming the user_id is stored in the session
+$current_user_id = $_SESSION['user_id']; // Make sure this is the correct key for user_id
+
 $invoice = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -9,8 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = validate($invoice);
 
     if (count($errors) === 0) {
+        // Add the current user's user_id as the user_id
+        $invoice['user_id'] = $current_user_id;
         addInvoice($invoice);
         header("Location: index.php");
+        exit();
     }
 }
 ?>
@@ -48,24 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Invoice Manager</h1>
         <div class="d-flex flex-row justify-content-between mb-3">
             <p>Create a new invoice.</p>
-            <a href="index.php">
-                < Back</a>
+            <a href="index.php">&lt; Back</a>
         </div>
         <div class="form">
             <form method="post" enctype="multipart/form-data">
                 <div class="mb-3">
-                    <label for="clientName" class="form-label fw-bold text-primary">Client Name</label>
-                    <input type="text" class="form-control" name="client" placeholder="Your Name" value="<?php echo htmlspecialchars($invoice['client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                    <?php if (isset($errors['client'])) : ?>
-                        <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['client']; ?></div>
-                    <?php endif ?>
-                </div>
-                <div class="mb-3">
-                    <label for="clientEmail" class="form-label fw-bold text-primary">Client Email</label>
-                    <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo htmlspecialchars($invoice['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                    <?php if (isset($errors['email'])) : ?>
-                        <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email']; ?></div>
-                    <?php endif ?>
+                    <!-- Hidden input for user_id -->
+                    <input type="text" class="form-control" name="user_id" value="<?php echo htmlspecialchars($current_user_id, ENT_QUOTES, 'UTF-8'); ?>" hidden>
                 </div>
                 <div class="mb-3">
                     <label for="amount" class="form-label fw-bold text-primary">Invoice Amount</label>

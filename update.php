@@ -73,13 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif ?>
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label fw-bold text-primary">Client Email</label>
-                    <input type="text" class="form-control" name="email" placeholder="Client Email" value="<?php echo htmlspecialchars($invoice['email'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <?php if (isset($errors['email'])) : ?>
-                        <div class="alert alert-primary mt-3" role="alert"><?php echo $errors['email']; ?></div>
-                    <?php endif ?>
-                </div>
-                <div class="mb-3">
                     <label for="status" class="form-label fw-bold text-primary">Invoice Status</label>
                     <select class="form-select" name="status">
                         <option value="">Select a status</option>
