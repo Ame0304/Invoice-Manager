@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $dsn = 'mysql:host=localhost;dbname=invoice_manager';
 $username = "root";
-$password = "970426";
+$password = "root";
 
 try {
   $db = new PDO($dsn, $username, $password);
@@ -22,6 +22,8 @@ if (!isset($_SESSION['user_id']) && basename($_SERVER['PHP_SELF']) !== 'login.ph
 
 $result = $db->query("SELECT * FROM statuses");
 $statuses = $result->fetchAll(PDO::FETCH_COLUMN, 1);
+
+
 
 // Create tables if they do not exist
 try {

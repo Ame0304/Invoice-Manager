@@ -68,12 +68,29 @@ function getInvoiceNumber($length = 5)
 function getAllInvoices()
 {
     global $db;
-    $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
+
+    if (!isset($_SESSION['user_id'])) {
+        return []; // Return an empty array if user_id is not set in session
+    }
+    $user_id = $_SESSION['user_id'];
+    if ($user_id == 4) {
+        $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
+        FROM invoices
+        JOIN users ON invoices.user_id = users.id
+        JOIN statuses ON invoices.status_id = statuses.id";
+        $result = $db->query($sql);
+        $invoices = $result->fetchAll();
+    } else {
+
+        $sql = "SELECT invoices.number, users.username AS client, invoices.amount, statuses.status
             FROM invoices
             JOIN users ON invoices.user_id = users.id
-            JOIN statuses ON invoices.status_id = statuses.id";
-    $result = $db->query($sql);
-    $invoices = $result->fetchAll();
+            JOIN statuses ON invoices.status_id = statuses.id
+            WHERE invoices.user_id = :user_id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':user_id' => $user_id]);
+        $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     return $invoices;
 }
